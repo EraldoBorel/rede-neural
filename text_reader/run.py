@@ -1,32 +1,43 @@
-from rede import RedeNeural
+from rede import *
 from data import get_mnist
-from kfold import train_kfold
+from kfold import train_kfold, train_stratified_kfold
 import matplotlib.pyplot as plt
+from print_util import *
 
 
-images, labels = get_mnist()
+inputs, outputs = get_mnist()
 
-rede_neural = RedeNeural(784, 10)
+INPUT_SIZE = 784
+OUTPUT_SIZE = 10
+OUTPUT_LABELS = list("0123456789")
 
-rede_neural.compile()
+neural2 = Neural2InternalLayers(INPUT_SIZE, OUTPUT_SIZE)
 
-train_kfold(rede_neural.modelo, images, labels)
+neural2.compile()
+train_stratified_kfold(neural2.model, inputs, outputs)
 
-# rede_neural.train(entrada=images, esperado=labels, epocas=30)
+#print_train_history(neural2.result.history)
+print_confusion_matrix(neural2.model, inputs, outputs, OUTPUT_LABELS)
 
-# rede_neural.imprimir_historico_treino()
 
-rede_neural.imprimir_matriz_de_confusao(entrada=images, esperado=labels)
+neural1 = Neural1Layer(INPUT_SIZE, OUTPUT_SIZE)
+
+neural1.compile()
+
+train_kfold(neural1.model, inputs, outputs)
+
+##print_train_history(neural1.result.history)
+print_confusion_matrix(neural1.model, inputs, outputs, OUTPUT_LABELS)
 
 
 while True:
     index = int(input("Enter a number (0 - 59999): "))
-    img = images[index]
+    img = inputs[index]
     plt.imshow(img.reshape(28, 28), cmap="Greys")
 
     new_var = img.reshape(1, 784)
-    predicao = rede_neural.predict(new_var)
+    predicao = neural1.predict(new_var)
 
     #23426
-    plt.title(f"Esperado: {(labels[index]).argmax()} -> predição: {predicao.argmax()} :)")
+    plt.title(f"Esperado: {(outputs[index]).argmax()} -> predição: {predicao.argmax()} :)")
     plt.show()

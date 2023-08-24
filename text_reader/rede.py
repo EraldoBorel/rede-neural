@@ -3,88 +3,65 @@ from keras.models import Sequential
 from keras.layers import Dense
 import matplotlib.pyplot as plt
 
-class RedeNeural:
 
-    ## entrada
-    def __init__(self, tamanho_entrada: int, tamanho_saida: int) -> None:
-        """
-        Parameters:
-        tamanho_entrada (int): tamanho da entrada da rede neural.
-        
-        tamanho_saida (int): tamanho da saída da rede neural 
-        """
+class Neural2InternalLayers:
 
-        ## TODO: aprimorar a rede para que a saida seja um array de inteiros
-        self.modelo = Sequential()
-        self.modelo.add(Dense(units=100, activation='relu', input_dim=tamanho_entrada))
+    def __init__(self, input_size: int, output_size: int) -> None:
         
-        self.modelo.add(Dense(units=10, activation='relu'))
-        self.modelo.add(Dense(units=tamanho_saida, activation='sigmoid'))
+        self.model = Sequential()
+        self.model.add(Dense(units=100, activation='relu', input_dim=input_size))
+        self.model.add(Dense(units=100, activation='relu'))        
+        self.model.add(Dense(units=100, activation='relu'))
+        self.model.add(Dense(units=output_size, activation='sigmoid'))
 
     def compile(self):
-        self.modelo.compile(loss='mse', optimizer='adam', metrics=['mae', 'accuracy'])
+        self.model.compile(loss='mse', optimizer='adam', metrics=['mae', 'accuracy'])
 
-    def train(self, entrada, esperado, epocas=50):
-        """
-        Parameters:
-        entrada (array bidimensional): Onde cada linha contem os pixels de uma imagem 28x28 em linha
+    def train(self, input, expected, epochs=50):
+        self.compile()
 
+        size_teste = int(input.shape[0] / 4 * 3)
+
+        input_train, input_test = input[:size_teste], input[size_teste:]
+        expected_train, expected_test = expected[:size_teste], expected[size_teste:]
+
+        self.result = self.model.fit(
+            input, expected, 
+            epochs=epochs, 
+            batch_size=32,
+            validation_data=(input_test, expected_test))
         
-        esperado (array unidimensional): Onde cada linha contem um inteiro correspondente ao caracter 
-        """
+    def predict(self, input):
+        return self.model.predict(input)
 
-        ## dividindo dados entre treino e teste
-        size_teste = int(entrada.shape[0] / 4 * 3)
+class Neural1Layer:
 
-        entrada_treino, entrada_teste = entrada[0:size_teste], entrada[size_teste:]
-        esperado_treino, esperado_teste = esperado[0:size_teste], esperado[size_teste:]
+    def __init__(self, input_size: int, output_size: int) -> None:
+       
+        self.model = Sequential()
+        self.model.add(Dense(units=100, activation='relu', input_dim=input_size))        
+        self.model.add(Dense(units=100, activation='relu'))
+        self.model.add(Dense(units=output_size, activation='sigmoid'))
+
+    def compile(self):
+        self.model.compile(loss='mse', optimizer='adam', metrics=['mae', 'accuracy'])
+
+    def train(self, input, expected, epochs=50):
+
+        size_teste = int(input.shape[0] / 4 * 3)
+
+        input_train, input_test = input[:size_teste], input[size_teste:]
+        expected_train, expected_test = expected[:size_teste], expected[size_teste:]
 
         ## compilando modelo
         self.compile()
 
         ## treino
-        self.resultado = self.modelo.fit(
-            entrada_treino, esperado_treino, 
-            epochs=epocas, 
+        self.result = self.model.fit(
+            input, expected, 
+            epochs=epochs, 
             batch_size=32, 
-            validation_data=(entrada_teste, esperado_teste))
+            validation_data=(input_test, expected_test))
         
-    def imprimir_historico_treino(self):
-        plt.plot(self.resultado.history['loss'])
-        plt.plot(self.resultado.history['val_loss'])
-        plt.title('Histórico de Treinamento')
-        plt.ylabel('Função de custo')
-        plt.xlabel('Épocas de treinamento')
-        plt.legend(['Erro treino', 'Erro teste'])
-        plt.show()
-
-    def imprimir_matriz_de_confusao(this, entrada, esperado):
-
-        
-        
-        from sklearn.metrics import ConfusionMatrixDisplay
-        from sklearn.metrics import confusion_matrix
-        import matplotlib.pyplot as plt
-        import numpy as np
-
-
-        y_pred = np.argmax(this.modelo.predict(entrada), axis=1)
-        y_test = np.argmax(esperado, axis=1)
-        labels = [i for i in "0123456789"]
-
-        cm = confusion_matrix(y_test, y_pred)
-
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
-        
-
-        disp.plot(cmap=plt.cm.Blues)
-
-        disp.ax_.set(
-                title='Matriz de Confusão', 
-                xlabel='Predito', 
-                ylabel='Esperado')
-
-        plt.show()
-
-    def predict(self, valor):
-        return self.modelo.predict(valor)
+    def predict(self, input):
+        return self.model.predict(input)
