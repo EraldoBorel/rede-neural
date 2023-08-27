@@ -4,14 +4,25 @@ from kfold import train_kfold, train_stratified_kfold
 import matplotlib.pyplot as plt
 from print_util import *
 
-
-inputs, outputs = get_mnist()
-
 INPUT_SIZE = 784
 OUTPUT_SIZE = 10
 OUTPUT_LABELS = list("0123456789")
 
-neural2 = Neural2InternalLayers(INPUT_SIZE, OUTPUT_SIZE)
+
+
+inputs, outputs = get_mnist()
+
+neuralConv = NeuralConvolutional((28, 28, 1), OUTPUT_SIZE)
+# neuralConv.compile()
+# train_kfold(neuralConv.model, inputs, outputs)
+
+# #print_train_history(neural2.result.history)
+# print_confusion_matrix(neuralConv.model, inputs, outputs, OUTPUT_LABELS)
+
+
+
+
+neural2 = Neural2InternalLayers((28, 28, 1), OUTPUT_SIZE)
 
 neural2.compile()
 train_stratified_kfold(neural2.model, inputs, outputs)
