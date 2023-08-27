@@ -1,5 +1,10 @@
 .venv
 
+image_generator/
+RedeNeural-1/
+RedeNeural-2/
+OCR/
+
 __pycache__/
 *.py[cod]
 *$py.class
